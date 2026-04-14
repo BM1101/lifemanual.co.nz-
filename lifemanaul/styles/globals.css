@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-gray-900;
+  }
+}
+
+@layer components {
+  /* Article prose styles */
+  .prose-life h2 {
+    @apply text-xl font-medium text-gray-900 mt-10 mb-4;
+  }
+  .prose-life h3 {
+    @apply text-lg font-medium text-gray-900 mt-8 mb-3;
+  }
+  .prose-life p {
+    @apply text-gray-600 leading-relaxed mb-5 text-base;
+  }
+  .prose-life ul {
+    @apply list-disc list-outside ml-5 mb-5 space-y-2;
+  }
+  .prose-life ul li {
+    @apply text-gray-600 leading-relaxed;
+  }
+  .prose-life ol {
+    @apply list-decimal list-outside ml-5 mb-5 space-y-2;
+  }
+  .prose-life ol li {
+    @apply text-gray-600 leading-relaxed;
+  }
+  .prose-life a {
+    @apply text-brand-600 underline underline-offset-2 hover:text-brand-800;
+  }
+  .prose-life strong {
+    @apply font-medium text-gray-900;
+  }
+  .prose-life blockquote {
+    @apply border-l-2 border-brand-200 pl-4 my-6 italic text-gray-500;
+  }
+  .prose-life hr {
+    @apply border-gray-100 my-8;
+  }
+
+  /* Callout box used in articles */
+  .callout {
+    @apply bg-brand-50 border border-brand-100 rounded-xl p-5 my-6;
+  }
+  .callout p {
+    @apply text-brand-800 mb-0 text-sm leading-relaxed;
+  }
+}
