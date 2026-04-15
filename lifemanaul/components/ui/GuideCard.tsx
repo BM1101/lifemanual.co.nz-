@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import type { GuideMeta } from '@/lib/guides'
+import type { GuideMeta } from '@/lib/stages'
 
 interface GuideCardProps {
   guide: GuideMeta
