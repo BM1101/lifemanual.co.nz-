@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { getGuide, getAllGuideSlugs, getAllGuides } from '@/lib/guides'
 import { getStage, getCategory } from '@/lib/stages'
+import { InvestmentCalculator } from '@/components/ui/InvestmentCalculator'
 
 interface Props {
   params: { slug: string }
@@ -57,6 +58,8 @@ const components = {
       <div className="text-brand-800 text-sm leading-relaxed">{children}</div>
     </div>
   ),
+  // Interactive calculators — drop into any MDX guide with <InvestmentCalculator />
+  InvestmentCalculator: () => <InvestmentCalculator />,
 }
 
 export default function GuidePage({ params }: Props) {
