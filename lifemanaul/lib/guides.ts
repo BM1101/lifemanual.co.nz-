@@ -6,8 +6,6 @@ import type { Guide, GuideMeta } from './stages'
 
 const GUIDES_DIR = path.join(process.cwd(), 'content', 'guides')
 
-// ─── File helpers ─────────────────────────────────────────────────────────────
-
 function getGuideFilePath(slug: string): string {
   return path.join(GUIDES_DIR, `${slug}.mdx`)
 }
@@ -16,9 +14,12 @@ function slugFromFilename(filename: string): string {
   return filename.replace(/\.mdx?$/, '')
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+function parseDate(val: unknown): string {
+  if (!val) return new Date().toISOString().split('T')[0]
+  if (val instanceof Date) return val.toISOString().split('T')[0]
+  return String(val)
+}
 
-/** Load all guide metadata (no content) — used for listing pages */
 export function getAllGuides(): GuideMeta[] {
   if (!fs.existsSync(GUIDES_DIR)) return []
 
@@ -37,24 +38,21 @@ export function getAllGuides(): GuideMeta[] {
       stageId: data.stageId ?? '',
       categoryId: data.categoryId ?? '',
       readingTime: Math.ceil(rt.minutes),
-      lastUpdated: data.lastUpdated ?? new Date().toISOString().split('T')[0],
+      lastUpdated: parseDate(data.lastUpdated),
       keyTakeaways: data.keyTakeaways ?? [],
       relatedSlugs: data.relatedSlugs ?? [],
     }
   })
 }
 
-/** Load guides for a specific stage */
 export function getGuidesByStage(stageId: string): GuideMeta[] {
   return getAllGuides().filter(g => g.stageId === stageId)
 }
 
-/** Load guides for a specific stage + category */
 export function getGuidesByCategory(stageId: string, categoryId: string): GuideMeta[] {
   return getAllGuides().filter(g => g.stageId === stageId && g.categoryId === categoryId)
 }
 
-/** Load a single guide including its MDX content */
 export function getGuide(slug: string): Guide | null {
   const filePath = getGuideFilePath(slug)
   if (!fs.existsSync(filePath)) return null
@@ -70,14 +68,13 @@ export function getGuide(slug: string): Guide | null {
     stageId: data.stageId ?? '',
     categoryId: data.categoryId ?? '',
     readingTime: Math.ceil(rt.minutes),
-    lastUpdated: data.lastUpdated ?? new Date().toISOString().split('T')[0],
+    lastUpdated: parseDate(data.lastUpdated),
     keyTakeaways: data.keyTakeaways ?? [],
     relatedSlugs: data.relatedSlugs ?? [],
     content,
   }
 }
 
-/** All guide slugs — used for generateStaticParams */
 export function getAllGuideSlugs(): string[] {
   if (!fs.existsSync(GUIDES_DIR)) return []
   return fs
