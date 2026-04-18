@@ -20,6 +20,12 @@ function parseDate(val: unknown): string {
   return String(val)
 }
 
+function parseRaw(raw: string) {
+  // Strip any leading whitespace/newlines before frontmatter
+  const cleaned = raw.replace(/^\s+/, '')
+  return matter(cleaned)
+}
+
 export function getAllGuides(): GuideMeta[] {
   if (!fs.existsSync(GUIDES_DIR)) return []
 
@@ -28,7 +34,7 @@ export function getAllGuides(): GuideMeta[] {
   return files.map(filename => {
     const slug = slugFromFilename(filename)
     const raw = fs.readFileSync(getGuideFilePath(slug), 'utf-8')
-    const { data, content } = matter(raw)
+    const { data, content } = parseRaw(raw)
     const rt = readingTime(content)
 
     return {
@@ -58,7 +64,7 @@ export function getGuide(slug: string): Guide | null {
   if (!fs.existsSync(filePath)) return null
 
   const raw = fs.readFileSync(filePath, 'utf-8')
-  const { data, content } = matter(raw)
+  const { data, content } = parseRaw(raw)
   const rt = readingTime(content)
 
   return {
