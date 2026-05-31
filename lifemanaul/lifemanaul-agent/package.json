@@ -1,0 +1,16 @@
+{
+  "name": "lifemanaul-agent",
+  "version": "1.0.0",
+  "description": "Automated content agent for Life Manual — watches NZ trends and writes articles",
+  "type": "module",
+  "main": "agent.js",
+  "scripts": {
+    "start": "node agent.js",
+    "test":  "node agent.js --dry-run"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@octokit/rest": "^21.0.0",
+    "dotenv": "^16.4.5"
+  }
+}
