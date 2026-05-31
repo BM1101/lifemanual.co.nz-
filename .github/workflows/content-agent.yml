@@ -1,0 +1,32 @@
+name: Life Manual Content Agent
+
+on:
+  schedule:
+    - cron: '0 20 * * 0'
+  workflow_dispatch:
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install agent dependencies
+        working-directory: ./lifemanaul-agent
+        run: npm install
+
+      - name: Run content agent
+        working-directory: ./lifemanaul-agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN:      ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_OWNER:      BM1101
+          GITHUB_REPO:       lifemanual.co.nz-
+        run: node agent.js
