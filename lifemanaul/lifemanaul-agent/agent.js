@@ -161,10 +161,19 @@ Requirements:
     .map(b => b.text)
     .join("");
 
-  // Ensure it starts with frontmatter
-  const cleaned = text.trim();
+  // Strip markdown code fences if Claude wrapped the output
+  let cleaned = text.trim();
+  cleaned = cleaned.replace(/^```(?:mdx|markdown)?\n/, "").replace(/\n```$/, "").trim();
+
+  // Find frontmatter start if there is preamble text before it
+  const frontmatterIndex = cleaned.indexOf("---");
+  if (frontmatterIndex > 0) {
+    cleaned = cleaned.slice(frontmatterIndex);
+  }
+
   if (!cleaned.startsWith("---")) {
-    throw new Error("Article did not start with frontmatter");
+    console.log("Raw response preview:", cleaned.slice(0, 200));
+    throw new Error("Article did not start with frontmatter after cleanup");
   }
 
   return cleaned;
