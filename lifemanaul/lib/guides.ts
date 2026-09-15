@@ -6,10 +6,6 @@ import type { Guide, GuideMeta } from './stages'
 
 const GUIDES_DIR = path.join(process.cwd(), 'content', 'guides')
 
-function getGuideFilePath(slug: string): string {
-  return path.join(GUIDES_DIR, `${slug}.mdx`)
-}
-
 function slugFromFilename(filename: string): string {
   return filename.replace(/\.mdx?$/, '')
 }
@@ -26,14 +22,40 @@ function parseRaw(raw: string) {
   return matter(cleaned)
 }
 
+// Recursively walk GUIDES_DIR (and every subfolder) and return absolute
+// paths to every .mdx/.md file found, at any depth.
+function findAllMdxFiles(dir: string): string[] {
+  if (!fs.existsSync(dir)) return []
+
+  let results: string[] = []
+  const entries = fs.readdirSync(dir, { withFileTypes: true })
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      results = results.concat(findAllMdxFiles(fullPath))
+    } else if (entry.isFile() && (entry.name.endsWith('.mdx') || entry.name.endsWith('.md'))) {
+      results.push(fullPath)
+    }
+  }
+
+  return results
+}
+
+// Look up the full path for a given slug, wherever it lives in the tree.
+function getGuideFilePath(slug: string): string | null {
+  const match = findAllMdxFiles(GUIDES_DIR).find(
+    f => slugFromFilename(path.basename(f)) === slug
+  )
+  return match ?? null
+}
+
 export function getAllGuides(): GuideMeta[] {
-  if (!fs.existsSync(GUIDES_DIR)) return []
+  const files = findAllMdxFiles(GUIDES_DIR)
 
-  const files = fs.readdirSync(GUIDES_DIR).filter(f => f.endsWith('.mdx') || f.endsWith('.md'))
-
-  return files.map(filename => {
-    const slug = slugFromFilename(filename)
-    const raw = fs.readFileSync(getGuideFilePath(slug), 'utf-8')
+  return files.map(filePath => {
+    const slug = slugFromFilename(path.basename(filePath))
+    const raw = fs.readFileSync(filePath, 'utf-8')
     const { data, content } = parseRaw(raw)
     const rt = readingTime(content)
 
@@ -61,7 +83,7 @@ export function getGuidesByCategory(stageId: string, categoryId: string): GuideM
 
 export function getGuide(slug: string): Guide | null {
   const filePath = getGuideFilePath(slug)
-  if (!fs.existsSync(filePath)) return null
+  if (!filePath) return null
 
   const raw = fs.readFileSync(filePath, 'utf-8')
   const { data, content } = parseRaw(raw)
@@ -82,9 +104,5 @@ export function getGuide(slug: string): Guide | null {
 }
 
 export function getAllGuideSlugs(): string[] {
-  if (!fs.existsSync(GUIDES_DIR)) return []
-  return fs
-    .readdirSync(GUIDES_DIR)
-    .filter(f => f.endsWith('.mdx') || f.endsWith('.md'))
-    .map(slugFromFilename)
+  return findAllMdxFiles(GUIDES_DIR).map(f => slugFromFilename(path.basename(f)))
 }
